@@ -1,3 +1,4 @@
+# ./docker-compose.yml
 version: '3.8'
 
 services:
@@ -21,6 +22,7 @@ services:
     volumes:
       - ./src/app:/code/app
       - ./src/.env:/code/.env
+      - ./src/migrations:/code/migrations
 
   worker:
     build:
@@ -43,10 +45,10 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     # -------- replace with comment to run migrations with docker --------
-    expose:
-      - "5432"
-    # ports:
-    #  - 5432:5432
+    # expose:
+    #   - "5432"
+    ports:
+     - 5432:5432
 
   redis:
     image: redis:alpine
@@ -55,19 +57,19 @@ services:
     expose:
       - "6379"
 
-  #-------- uncomment to run with pgadmin --------
-  # pgadmin:
-  #   container_name: pgadmin4
-  #   image: dpage/pgadmin4:latest
-  #   restart: always
-  #   ports:
-  #     - "5050:80"
-  #   volumes:
-  #     - pgadmin-data:/var/lib/pgadmin
-  #   env_file:
-  #     - ./src/.env
-  #   depends_on:
-  #     - db
+  # -------- uncomment to run with pgadmin --------
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4:latest
+    restart: always
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    env_file:
+      - ./src/.env
+    depends_on:
+      - db
 
   #-------- uncomment to run with nginx --------
   # nginx:
@@ -80,33 +82,33 @@ services:
   #     - web
 
   #-------- uncomment to create first superuser --------
-  # create_superuser:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ./src/.env
-  #   depends_on:
-  #     - db
-  #     - web
-  #   command: python -m src.scripts.create_first_superuser
-  #   volumes:
-  #     - ./src:/code/src
+  create_superuser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./src/.env
+    depends_on:
+      - db
+      - web
+    command: python -m src.scripts.create_first_superuser
+    volumes:
+      - ./src:/code/src
 
   #-------- uncomment to run tests --------
-  # pytest:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ./src/.env
-  #   depends_on:
-  #     - db
-  #     - create_superuser
-  #     - redis
-  #   command: python -m pytest ./tests
-  #   volumes:
-  #     - .:/code
+  pytest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./src/.env
+    depends_on:
+      - db
+      - create_superuser
+      - redis
+    command: python -m pytest -s ./tests
+    volumes:
+      - .:/code
 
   #-------- uncomment to create first tier --------
   # create_tier:
@@ -122,7 +124,21 @@ services:
   #   volumes:
   #     - ./src:/code/src
 
+    #-------- uncomment to test db --------
+  # test_db:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ./src/.env
+  #   depends_on:
+  #     - db
+  #     - web
+  #   command: python -m src.scripts.test_database_connection
+  #   volumes:
+  #     - ./src:/code/src
+
 volumes:
   postgres-data:
   redis-data:
-  #pgadmin-data:
+  pgadmin-data:

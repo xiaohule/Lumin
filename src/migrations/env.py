@@ -7,15 +7,27 @@ from app.core.db.database import Base
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
+from app.models import *
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
+# config.set_main_option(
+#     "sqlalchemy.url",
+#     f"{settings.POSTGRES_ASYNC_PREFIX}{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@172.20.0.3/{settings.POSTGRES_DB}",
+# )
+
+# get IP from docker ps ; docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' rizriz-db-1
+
 config.set_main_option(
     "sqlalchemy.url",
-    f"{settings.POSTGRES_ASYNC_PREFIX}{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@localhost/{settings.POSTGRES_DB}",
+    f"{settings.POSTGRES_ASYNC_PREFIX}{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_SERVER}/{settings.POSTGRES_DB}",
 )
+
+# print the value of the sqlalchemy.url option
+print(f"sqlalchemy.url: {config.get_main_option('sqlalchemy.url')}")
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
