@@ -13,7 +13,6 @@ from ...crud.crud_ends_of_call import crud_ends_of_call
 from ...crud.crud_users import crud_users
 from ...schemas.end_of_call import (
     EndOfCallMessage,
-    EndOfCallCreate,
     EndOfCallCreateInternal,
     EndOfCallRead,
 )
@@ -21,38 +20,13 @@ from ...schemas.user import UserRead
 
 router = APIRouter(tags=["ends_of_call"])
 
-# End of Call Report
-# When a call ends, the assistant will make a POST request to endpoint post("/{username}/end_of_call with the following body:
-# {
-#   "message": {
-#     "type": "end-of-call-report",
-#     "endedReason": "hangup",
-#     "call": { Call Object },
-#     "recordingUrl": "https://vapi-public.s3.amazonaws.com/recordings/1234.wav",
-#     "summary": "The user picked up the phone then asked about the weather...",
-#     "transcript": "AI: How can I help? User: What's the weather? ...",
-#     "messages":[
-#       {
-#         "role": "assistant",
-#         "message": "How can I help?",
-#       },
-#       {
-#         "role": "user",
-#         "message": "What's the weather?"
-#       },
-#       ...
-#     ]
-#   }
-# }
-# endedReason can be any of the options defined on the Call Object.
-
 
 @router.post("/{username}/end_of_call", response_model=EndOfCallRead, status_code=201)
 async def write_end_of_call(
     request: Request,
     username: str,
     message: EndOfCallMessage,
-    current_user: Annotated[UserRead, Depends(get_current_user)],
+    # current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)],
 ) -> EndOfCallRead:
 
@@ -65,8 +39,8 @@ async def write_end_of_call(
     if db_user is None:
         raise NotFoundException("User not found")
 
-    if current_user["id"] != db_user["id"]:
-        raise ForbiddenException()
+    # if current_user["id"] != db_user["id"]:
+    #     raise ForbiddenException()
 
     end_of_call_internal_dict = message.message.model_dump()
     # end_of_call_internal_dict.pop('type', None)  # Remove 'type' if it's not needed for the model
