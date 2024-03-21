@@ -21,6 +21,9 @@ class VapiConversationUpdate(Base):
         init=False,
     )
     created_by_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), index=True)
+    call_id: Mapped[str] = mapped_column(
+        ForeignKey("vapi_end_of_call.call_id"), index=True
+    )
 
     type: Mapped[str] = mapped_column(String(50))
     conversation: Mapped[list[dict[str, str]]] = mapped_column(JSON)

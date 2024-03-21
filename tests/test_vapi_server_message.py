@@ -1,10 +1,14 @@
-# ./tests/test_end_of_call.py
+# ./tests/test_vapi_server_message.py
 from fastapi.testclient import TestClient
 
 from src.app.core.config import settings
 from src.app.main import app
 
-from .helper import _get_token, _get_vapi_end_of_call_ids
+from .helper import (
+    _get_token,
+    _get_vapi_end_of_calls_ids,
+    _get_vapi_conversation_updates_ids,
+)
 
 test_name = settings.TEST_NAME
 test_username = settings.TEST_USERNAME
@@ -32,14 +36,15 @@ def test_post_user(client: TestClient) -> None:
 
 def test_get_user(client: TestClient) -> None:
     response = client.get(f"/api/v1/user/{test_username}")
-    print("In test_end_of_call.py, test_get_user, response is", response.json())
+    print("In test_vapi_server_message.py, test_get_user, response is", response.json())
     assert response.status_code == 200
 
 
 def test_get_multiple_users(client: TestClient) -> None:
     response = client.get("/api/v1/users")
     print(
-        "In test_end_of_call.py, test_get_multiple_users, response is", response.json()
+        "In test_vapi_server_message.py, test_get_multiple_users, response is",
+        response.json(),
     )
     assert response.status_code == 200
 
@@ -86,7 +91,7 @@ def test_post_vapi_end_of_call(client: TestClient) -> None:
                 "recordingUrl": "https://auth.vapi.ai/storage/v1/object/public/recordings/1710830770068-910a9cd0-c2ec-4789-9dd5-ab03dad1ddc4.wav",
                 "stereoRecordingUrl": "https://auth.vapi.ai/storage/v1/object/public/recordings/1710830770071-7a730b84-d082-46e0-afcf-c7eba6a8e4b8.wav",
                 "call": {
-                    "id": "8248e704-2a50-40d2-b3a2-bd1d52a73847",
+                    "id": "51ac5220-9ae4-46fe-8e90-5fc123706970",
                     "assistantId": "0eff0e2a-e7ba-4fac-b867-3e40f657f6e9",
                 },
                 "unknownDict": {"dummy": "1234567890"},
@@ -97,7 +102,10 @@ def test_post_vapi_end_of_call(client: TestClient) -> None:
         headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
     )
     # print the response prefixed by test_post_end_of_call
-    print("In test_end_of_call.py, test_post_end_of_call, response is", response.json())
+    print(
+        "In test_vapi_server_message.py, test_post_end_of_call, response is",
+        response.json(),
+    )
     assert response.status_code == 201
 
 
@@ -150,7 +158,7 @@ def test_post_vapi_end_of_call_2(client: TestClient) -> None:
                 "recordingUrl": "https://auth.vapi.ai/storage/v1/object/public/recordings/1710844344292-51fb580d-7cb5-404c-abb3-9bf41bb69fee.wav",
                 "stereoRecordingUrl": "https://auth.vapi.ai/storage/v1/object/public/recordings/1710844344297-c06e51e6-ae5a-4f9f-9281-a01ec7e820c5.wav",
                 "call": {
-                    "id": "4bd29b07-b248-4df3-b9db-29dc821e3910",
+                    "id": "98ut5220-9ae4-46fe-8e90-5fc1238790",
                     "assistantId": "0eff0e2a-e7ba-4fac-b867-3e40f657f6e9",
                     "customerId": None,
                     "phoneNumberId": "7cfcdb17-e2ab-4eaf-b7ef-2630fae1c17c",
@@ -208,9 +216,216 @@ def test_post_vapi_end_of_call_2(client: TestClient) -> None:
     )
     # print the response prefixed by test_post_end_of_call_2
     print(
-        "In test_end_of_call.py, test_post_end_of_call_2, response is", response.json()
+        "In test_vapi_server_message.py, test_post_end_of_call_2, response is",
+        response.json(),
     )
     assert response.status_code == 201
+
+
+def test_post_vapi_conversation_update(client: TestClient) -> None:
+    token = _get_token(username=test_username, password=test_password, client=client)
+    response = client.post(
+        f"/api/v1/{test_username}/vapi_server_message",
+        json={
+            "message": {
+                "type": "conversation-update",
+                "conversation": [
+                    {
+                        "role": "assistant",
+                        "content": "Bienvenue aux assurances de la Caisse d'Epargne des Banques Associées. Je me présente, suis Léo, puis-je vous aider",
+                    },
+                    {"role": "user", "content": "Bonjour Léo, je suis copain Vertou,"},
+                    {
+                        "role": "assistant",
+                        "content": "Bonjour, suis ravi de vous assister. Pourriez-vous me donner votre nom complet S'il vous plaît,",
+                    },
+                    {
+                        "role": "user",
+                        "content": "Oui, oui mon prénom c'est coquin et mon nom de famille c'est Vertu v e r t o u.",
+                    },
+                ],
+                "call": {
+                    "id": "51ac5220-9ae4-46fe-8e90-5fc123706970",
+                    "assistantId": None,
+                    "customerId": None,
+                    "phoneNumberId": None,
+                    "type": "webCall",
+                    "updatedAt": "2024-03-20T17:26:19.582Z",
+                    "orgId": "e126b212-5073-46eb-bed1-295d0aef12da",
+                    "cost": 0,
+                    "twilioCallSid": None,
+                    "twilioCallStatus": None,
+                    "webCallUrl": "https://vapi.daily.co/giUL1FGoyFlBRa5FpHlw",
+                    "assistant": {
+                        "name": "Leo",
+                        "model": {
+                            "model": "gpt-4",
+                            "messages": [
+                                {
+                                    "role": "system",
+                                    "content": "Salut Léo ! En tant que juriste de notre service d'information juridique à la Caisse d'Épargne et des Banques Associées...",
+                                }
+                            ],
+                            "provider": "openai",
+                            "functions": [],
+                            "maxTokens": 250,
+                            "temperature": 0,
+                        },
+                    },
+                    "phoneNumber": None,
+                    "phoneCallProviderDetails": None,
+                },
+                "unknownDict": {"dummy": "1234567890"},
+                "unknownList": ["dummy", "1234567890"],
+                "unknownString": "dummy",
+            }
+        },
+        headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
+    )
+    # print the response prefixed by test_post_end_of_call
+    print(
+        "In test_vapi_server_message.py, test_post_vapi_conversation_update, response is",
+        response.json(),
+    )
+    assert response.status_code == 201
+
+
+def test_post_vapi_conversation_update_2(client: TestClient) -> None:
+    token = _get_token(username=test_username, password=test_password, client=client)
+    response = client.post(
+        f"/api/v1/{test_username}/vapi_server_message",
+        json={
+            "message": {
+                "type": "conversation-update",
+                "conversation": [
+                    {
+                        "role": "assistant",
+                        "content": "Bienvenue aux assurances de la Caisse d'Epargne des Banques Associées. Je me présente, suis Léo, puis-je vous aider",
+                    },
+                    {"role": "user", "content": "Bonjour Léo, je suis copain Vertou,"},
+                    {
+                        "role": "assistant",
+                        "content": "Bonjour, suis ravi de vous assister. Pourriez-vous me donner votre nom complet S'il vous plaît,",
+                    },
+                    {
+                        "role": "user",
+                        "content": "Oui, oui mon prénom c'est coquin et mon nom de famille c'est Vertu v e r t o u.",
+                    },
+                    {
+                        "role": "assistant",
+                        "content": "Merci beaucoup Coquin Vertou. Comment puis-je vous aider aujourd'hui,",
+                    },
+                ],
+                "call": {
+                    "id": "51ac5220-9ae4-46fe-8e90-5fc123706970",
+                    "assistantId": None,
+                    "customerId": None,
+                    "phoneNumberId": None,
+                    "type": "webCall",
+                    "updatedAt": "2024-03-20T17:26:19.582Z",
+                    "orgId": "e126b212-5073-46eb-bed1-295d0aef12da",
+                    "cost": 0,
+                    "twilioCallSid": None,
+                    "twilioCallStatus": None,
+                    "webCallUrl": "https://vapi.daily.co/giUL1FGoyFlBRa5FpHlw",
+                    "assistant": {
+                        "name": "Leo",
+                        "model": {
+                            "model": "gpt-4",
+                            "messages": [
+                                {
+                                    "role": "system",
+                                    "content": "Salut Léo ! En tant que juriste de notre service d'information juridique à la Caisse d'Épargne et des Banques Associées...",
+                                }
+                            ],
+                            "provider": "openai",
+                            "functions": [],
+                            "maxTokens": 250,
+                            "temperature": 0,
+                        },
+                    },
+                    "phoneNumber": None,
+                    "phoneCallProviderDetails": None,
+                },
+            }
+        },
+        headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
+    )
+    # print the response prefixed by test_post_end_of_call
+    print(
+        "In test_vapi_server_message.py, test_post_vapi_conversation_update_2, response is",
+        response.json(),
+    )
+    assert response.status_code == 201
+
+
+def test_get_multiple_conversation_updates(client: TestClient) -> None:
+    token = _get_token(username=test_username, password=test_password, client=client)
+    response = client.get(
+        f"/api/v1/{test_username}/vapi_conversation_updates",
+        headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
+    )
+    # print the response prefixed by test_get_multiple_end_of_calls
+    print(
+        "In test_vapi_server_message.py, test_get_multiple_conversation_updates, response is",
+        response.json(),
+    )
+    assert response.status_code == 200
+
+
+def test_delete_conversation_updates(client: TestClient) -> None:
+    token = _get_token(username=test_username, password=test_password, client=client)
+    conversation_updates_ids = _get_vapi_conversation_updates_ids(
+        username=test_username, client=client, token=token
+    )
+
+    print(
+        "In test_vapi_server_message.py, test_delete_conversation_updates, conversation_updates_ids is",
+        conversation_updates_ids,
+    )
+    # for each id in end_of_call_ids, delete the end of call
+    for conversation_update_id in conversation_updates_ids:
+        response = client.delete(
+            f"/api/v1/{test_username}/vapi_conversation_update/{conversation_update_id}",
+            headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
+        )
+        # print the response prefixed by test_delete_end_of_call
+        print(
+            "In test_vapi_server_message.py, test_delete_conversation_updates, for id",
+            conversation_update_id,
+            "response is",
+            response.json(),
+        )
+        assert response.status_code == 200
+
+
+def test_delete_db_conversation_updates_ids(client: TestClient) -> None:
+    token = _get_token(username=admin_username, password=admin_password, client=client)
+    userToken = _get_token(
+        username=test_username, password=test_password, client=client
+    )
+    conversation_updates_ids = _get_vapi_conversation_updates_ids(
+        username=test_username, client=client, token=userToken
+    )
+
+    print(
+        "In test_vapi_server_message.py, test_delete_db_conversation_updates_ids, conversation_updates_ids is",
+        conversation_updates_ids,
+    )
+    # for each id in end_of_call_ids, delete the end of call
+    for conversation_update_id in conversation_updates_ids:
+        response = client.delete(
+            f"/api/v1/{admin_username}/db_vapi_conversation_update/{conversation_update_id}",
+            headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
+        )
+        # print the response prefixed by test_delete_db_end_of_call
+        print(
+            "In test_vapi_server_message.py, test_delete_db_conversation_updates_ids, for id",
+            conversation_update_id,
+            "response is",
+            response.json(),
+        )
+        assert response.status_code == 200
 
 
 def test_get_multiple_end_of_calls(client: TestClient) -> None:
@@ -221,31 +436,31 @@ def test_get_multiple_end_of_calls(client: TestClient) -> None:
     )
     # print the response prefixed by test_get_multiple_end_of_calls
     print(
-        "In test_end_of_call.py, test_get_multiple_end_of_calls, response is",
+        "In test_vapi_server_message.py, test_get_multiple_end_of_calls, response is",
         response.json(),
     )
     assert response.status_code == 200
 
 
-def test_delete_end_of_call(client: TestClient) -> None:
+def test_delete_end_of_calls(client: TestClient) -> None:
     token = _get_token(username=test_username, password=test_password, client=client)
-    end_of_call_ids = _get_vapi_end_of_call_ids(
+    end_of_calls_ids = _get_vapi_end_of_calls_ids(
         username=test_username, client=client, token=token
     )
 
     print(
-        "In test_end_of_call.py, test_delete_end_of_call, end_of_call_ids is",
-        end_of_call_ids,
+        "In test_vapi_server_message.py, test_delete_end_of_calls, end_of_calls_ids is",
+        end_of_calls_ids,
     )
     # for each id in end_of_call_ids, delete the end of call
-    for end_of_call_id in end_of_call_ids:
+    for end_of_call_id in end_of_calls_ids:
         response = client.delete(
             f"/api/v1/{test_username}/vapi_end_of_call/{end_of_call_id}",
             headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
         )
         # print the response prefixed by test_delete_end_of_call
         print(
-            "In test_end_of_call.py, test_delete_end_of_call, for id",
+            "In test_vapi_server_message.py, test_delete_end_of_calls, for id",
             end_of_call_id,
             "response is",
             response.json(),
@@ -253,28 +468,28 @@ def test_delete_end_of_call(client: TestClient) -> None:
         assert response.status_code == 200
 
 
-def test_delete_db_end_of_call(client: TestClient) -> None:
+def test_delete_db_end_of_calls(client: TestClient) -> None:
     token = _get_token(username=admin_username, password=admin_password, client=client)
     userToken = _get_token(
         username=test_username, password=test_password, client=client
     )
-    end_of_call_ids = _get_vapi_end_of_call_ids(
+    end_of_calls_ids = _get_vapi_end_of_calls_ids(
         username=test_username, client=client, token=userToken
     )
 
     print(
-        "In test_end_of_call.py, test_delete_db_end_of_call, end_of_call_ids is",
-        end_of_call_ids,
+        "In test_vapi_server_message.py, test_delete_db_end_of_call, end_of_call_ids is",
+        end_of_calls_ids,
     )
     # for each id in end_of_call_ids, delete the end of call
-    for end_of_call_id in end_of_call_ids:
+    for end_of_call_id in end_of_calls_ids:
         response = client.delete(
             f"/api/v1/{admin_username}/db_vapi_end_of_call/{end_of_call_id}",
             headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
         )
         # print the response prefixed by test_delete_db_end_of_call
         print(
-            "In test_end_of_call.py, test_delete_db_end_of_call, for id",
+            "In test_vapi_server_message.py, test_delete_db_end_of_calls, for id",
             end_of_call_id,
             "response is",
             response.json(),

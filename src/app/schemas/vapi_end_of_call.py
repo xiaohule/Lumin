@@ -1,6 +1,6 @@
 # ./src/app/schemas/vapi_end_of_call.py
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Literal, Annotated, Any
 
 from pydantic import BaseModel, Field
 
@@ -9,7 +9,8 @@ from ..core.schemas import PersistentDeletion, TimestampSchema, UUIDSchema
 
 class VapiEndOfCallBase(BaseModel):
     type: Annotated[
-        str, Field(min_length=1, max_length=50, examples=["end-of-call-report"])
+        Literal["end-of-call-report"],
+        Field(min_length=1, max_length=50),
     ]
     ended_reason: Annotated[
         str,
@@ -29,6 +30,14 @@ class VapiEndOfCallBase(BaseModel):
     messages: Annotated[
         list[dict[str, Any]],
         Field(examples=[{"role": "assistant", "message": "How can I help?"}]),
+    ]
+    call: Annotated[
+        dict[str, Any],
+        Field(
+            examples=[
+                {"id": "51ac5220-9ae4-46fe-8e90-5fc123706970", "assistantId": None}
+            ]
+        ),
     ]
     recording_url: Annotated[
         str | None,
@@ -62,22 +71,31 @@ class VapiEndOfCallBase(BaseModel):
         populate_by_name = True
 
 
-class VapiEndOfCall(TimestampSchema, VapiEndOfCallBase, UUIDSchema, PersistentDeletion):
-    created_by_user_id: int
-
-
-class VapiEndOfCallRead(VapiEndOfCallBase):
-    id: int
-    created_by_user_id: int
-    created_at: datetime
-
-
 class VapiEndOfCallCreateInternal(VapiEndOfCallBase):
+    call_id: Annotated[
+        str,
+        Field(
+            min_length=1,
+            max_length=50,
+            examples=["51ac5220-9ae4-46fe-8e90-5fc123706970"],
+        ),
+    ]
     created_by_user_id: int
 
 
-class VapiEndOfCallUpdate(VapiEndOfCallBase):
+class VapiEndOfCallUpdate(VapiEndOfCallCreateInternal):
     pass
+
+
+class VapiEndOfCall(
+    TimestampSchema, VapiEndOfCallCreateInternal, UUIDSchema, PersistentDeletion
+):
+    pass
+
+
+class VapiEndOfCallRead(VapiEndOfCallCreateInternal):
+    id: int
+    created_at: datetime
 
 
 class VapiEndOfCallUpdateInternal(VapiEndOfCallUpdate):

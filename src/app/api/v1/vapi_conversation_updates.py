@@ -20,11 +20,11 @@ router = APIRouter(tags=["vapi_conversation_updates"])
 
 
 @router.get(
-    "/{username}/conversation_updates",
+    "/{username}/vapi_conversation_updates",
     response_model=PaginatedListResponse[VapiConversationUpdateRead],
 )
 @cache(
-    key_prefix="{username}_conversation_updates:page_{page}:items_per_page:{items_per_page}",
+    key_prefix="{username}_vapi_conversation_updates:page_{page}:items_per_page:{items_per_page}",
     resource_id_name="username",
     expiration=60,
 )
@@ -56,9 +56,10 @@ async def read_conversation_updates(
 
 
 @router.get(
-    "/{username}/conversation_update/{id}", response_model=VapiConversationUpdateRead
+    "/{username}/vapi_conversation_update/{id}",
+    response_model=VapiConversationUpdateRead,
 )
-@cache(key_prefix="{username}_conversation_update_cache", resource_id_name="id")
+@cache(key_prefix="{username}_vapi_conversation_update_cache", resource_id_name="id")
 async def read_conversation_update(
     request: Request,
     username: str,
@@ -119,11 +120,11 @@ async def read_conversation_update(
 #     return {"message": "Post updated"}
 
 
-@router.delete("/{username}/conversation_update/{id}")
+@router.delete("/{username}/vapi_conversation_update/{id}")
 @cache(
-    "{username}_conversation_update_cache",
+    "{username}_vapi_conversation_update_cache",
     resource_id_name="id",
-    to_invalidate_extra={"{username}_conversation_updates": "{username}"},
+    to_invalidate_extra={"{username}_vapi_conversation_updates": "{username}"},
 )
 async def erase_conversation_update(
     request: Request,
@@ -153,13 +154,13 @@ async def erase_conversation_update(
 
 
 @router.delete(
-    "/{username}/db_conversation_update/{id}",
+    "/{username}/db_vapi_conversation_update/{id}",
     dependencies=[Depends(get_current_superuser)],
 )
 @cache(
-    "{username}_conversation_update_cache",
+    "{username}_vapi_conversation_update_cache",
     resource_id_name="id",
-    to_invalidate_extra={"{username}_conversation_updates": "{username}"},
+    to_invalidate_extra={"{username}_vapi_conversation_updates": "{username}"},
 )
 async def erase_db_conversation_update(
     request: Request,

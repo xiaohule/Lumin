@@ -23,6 +23,7 @@ class VapiEndOfCall(Base):
     created_by_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), index=True)
 
     type: Mapped[str] = mapped_column(String(50))
+    call_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     ended_reason: Mapped[str] = mapped_column(String(50))
     call: Mapped[list[dict[str, str]]] = mapped_column(JSON)
     phone_number: Mapped[list[dict[str, str]]] = mapped_column(JSON)

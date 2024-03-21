@@ -4,7 +4,7 @@ from typing import Annotated, Union
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..dependencies import get_current_superuser, get_current_user
+# from ..dependencies import get_current_user
 from ...core.db.database import async_get_db
 from ...core.exceptions.http_exceptions import NotFoundException
 from ...crud.crud_vapi_end_of_calls import crud_vapi_end_of_calls
@@ -18,14 +18,10 @@ from ...schemas.vapi_conversation_update import (
     VapiConversationUpdateCreateInternal,
     VapiConversationUpdateRead,
 )
-from ...schemas.vapi_server_message import (
-    VapiServerMessage,
-)
+from ...schemas.vapi_server_message import VapiServerMessage, VapiServerMessageRead
 from ...schemas.user import UserRead
 
 router = APIRouter(tags=["vapi_server_messages"])
-
-VapiServerMessageRead = Union[VapiEndOfCallRead, VapiConversationUpdateRead]
 
 
 @router.post(
@@ -54,6 +50,7 @@ async def write_vapi_server_message(
 
     message_internal_dict = message.message.model_dump()
     message_internal_dict["created_by_user_id"] = db_user["id"]
+    message_internal_dict["call_id"] = message_internal_dict["call"]["id"]
 
     print(
         "In vapi_server_message.py > vapi_server_message_internal_dict is",
@@ -69,15 +66,14 @@ async def write_vapi_server_message(
         return created_end_of_call
 
     elif message_internal_dict["type"] == "conversation-update":
-        relevant_data = {
-            "type": message_internal_dict.type,
-            "conversation": message_internal_dict.conversation,
-            "call_id": message_internal_dict.call.id,
-            "created_by_user_id": message_internal_dict.created_by_user_id,
-        }
+        # relevant_data = {
+        #     "type": message_internal_dict["type"],
+        #     "conversation": message_internal_dict["conversation"],
+        #     "created_by_user_id": message_internal_dict["created_by_user_id"],
+        # }
 
         conversation_update_internal = VapiConversationUpdateCreateInternal(
-            **relevant_data
+            **message_internal_dict
         )
         created_conversation_update: VapiConversationUpdateRead = (
             await crud_vapi_conversation_updates.create(

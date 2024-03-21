@@ -1,6 +1,6 @@
 # ./src/app/schemas/vapi_conversation_update.py
 from datetime import datetime
-from typing import Annotated
+from typing import Literal, Annotated, Any
 
 from pydantic import BaseModel, Field
 
@@ -8,9 +8,23 @@ from ..core.schemas import PersistentDeletion, TimestampSchema, UUIDSchema
 
 
 class VapiConversationUpdateBase(BaseModel):
-    type: Annotated[
-        str, Field(min_length=1, max_length=50, examples=["conversation-update"])
+    type: Annotated[Literal["conversation-update"], Field(min_length=1, max_length=50)]
+    conversation: Annotated[
+        list[dict[str, str]],
+        Field(examples=[{"role": "assistant", "message": "How can I help?"}]),
     ]
+    call: Annotated[
+        dict[str, Any],
+        Field(
+            examples=[
+                {"id": "51ac5220-9ae4-46fe-8e90-5fc123706970", "assistantId": None}
+            ]
+        ),
+    ]
+
+
+class VapiConversationUpdateCreateInternal(BaseModel):
+    type: Annotated[Literal["conversation-update"], Field(min_length=1, max_length=50)]
     conversation: Annotated[
         list[dict[str, str]],
         Field(examples=[{"role": "assistant", "message": "How can I help?"}]),
@@ -23,26 +37,25 @@ class VapiConversationUpdateBase(BaseModel):
             examples=["51ac5220-9ae4-46fe-8e90-5fc123706970"],
         ),
     ]
+    created_by_user_id: int
+
+
+class VapiConversationUpdateUpdate(VapiConversationUpdateCreateInternal):
+    pass
 
 
 class VapiConversationUpdate(
-    TimestampSchema, VapiConversationUpdateBase, UUIDSchema, PersistentDeletion
+    TimestampSchema,
+    VapiConversationUpdateCreateInternal,
+    UUIDSchema,
+    PersistentDeletion,
 ):
-    created_by_user_id: int
-
-
-class VapiConversationUpdateRead(VapiConversationUpdateBase):
-    id: int
-    created_by_user_id: int
-    created_at: datetime
-
-
-class VapiConversationUpdateCreateInternal(VapiConversationUpdateBase):
-    created_by_user_id: int
-
-
-class VapiConversationUpdateUpdate(VapiConversationUpdateBase):
     pass
+
+
+class VapiConversationUpdateRead(VapiConversationUpdateCreateInternal):
+    id: int
+    created_at: datetime
 
 
 class VapiConversationUpdateUpdateInternal(VapiConversationUpdateUpdate):
