@@ -1,4 +1,4 @@
-# ./src/app/schemas/end_of_call.py
+# ./src/app/schemas/vapi_end_of_call.py
 from datetime import datetime
 from typing import Annotated, Any
 
@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from ..core.schemas import PersistentDeletion, TimestampSchema, UUIDSchema
 
 
-class EndOfCallBase(BaseModel):
+class VapiEndOfCallBase(BaseModel):
     type: Annotated[
         str, Field(min_length=1, max_length=50, examples=["end-of-call-report"])
     ]
@@ -60,61 +60,30 @@ class EndOfCallBase(BaseModel):
 
     class Config:
         populate_by_name = True
-        extra = "ignore"  # replace forbid by ignore if needed
 
 
-class EndOfCall(TimestampSchema, EndOfCallBase, UUIDSchema, PersistentDeletion):
+class VapiEndOfCall(TimestampSchema, VapiEndOfCallBase, UUIDSchema, PersistentDeletion):
     created_by_user_id: int
 
 
-class EndOfCallRead(EndOfCallBase):
+class VapiEndOfCallRead(VapiEndOfCallBase):
     id: int
     created_by_user_id: int
     created_at: datetime
 
 
-class EndOfCallCreateInternal(EndOfCallBase):
+class VapiEndOfCallCreateInternal(VapiEndOfCallBase):
     created_by_user_id: int
 
 
-class EndOfCallUpdate(EndOfCallBase):
+class VapiEndOfCallUpdate(VapiEndOfCallBase):
     pass
 
 
-class EndOfCallUpdateInternal(EndOfCallUpdate):
+class VapiEndOfCallUpdateInternal(VapiEndOfCallUpdate):
     updated_at: datetime
 
 
-class EndOfCallDelete(BaseModel):
+class VapiEndOfCallDelete(BaseModel):
     is_deleted: bool
     deleted_at: datetime
-
-    class Config:
-        extra = "ignore"
-
-
-class EndOfCallMessage(BaseModel):
-    message: Annotated[
-        EndOfCallBase,
-        Field(
-            examples=[
-                {
-                    "type": "end-of-call-report",
-                    "endedReason": "hangup",
-                    "call": "{ Call Object }",
-                    "phoneNumber": "{ Phone Number Object }",
-                    "recordingUrl": "https://vapi-public.s3.amazonaws.com/recordings/1234.wav",
-                    "sterioRecordingUrl": "https://vapi-public.s3.amazonaws.com/recordings/1234.wav",
-                    "summary": "The user picked up the phone then asked about the weather...",
-                    "transcript": "AI: How can I help? User: What's the weather? ...",
-                    "messages": [
-                        {
-                            "role": "assistant",
-                            "message": "How can I help?",
-                        },
-                        {"role": "user", "message": "What's the weather?"},
-                    ],
-                }
-            ]
-        ),
-    ]

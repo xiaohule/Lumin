@@ -1,4 +1,4 @@
-# ./src/app/models/end_of_call.py
+# ./src/app/models/vapi_conversation_update.py
 import uuid as uuid_pkg
 from datetime import UTC, datetime
 
@@ -9,8 +9,8 @@ from sqlalchemy.dialects.postgresql import JSON
 from ..core.db.database import Base
 
 
-class EndOfCall(Base):
-    __tablename__ = "end_of_call"
+class VapiConversationUpdate(Base):
+    __tablename__ = "vapi_conversation_update"
 
     id: Mapped[int] = mapped_column(
         "id",
@@ -21,21 +21,13 @@ class EndOfCall(Base):
         init=False,
     )
     created_by_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), index=True)
+
     type: Mapped[str] = mapped_column(String(50))
-    ended_reason: Mapped[str] = mapped_column(String(50))
-    call: Mapped[list[dict[str, str]]] = mapped_column(JSON)
-    phone_number: Mapped[list[dict[str, str]]] = mapped_column(JSON)
-    summary: Mapped[str] = mapped_column(String(63206))
-    transcript: Mapped[str] = mapped_column(String)
-    messages: Mapped[list[dict[str, str]]] = mapped_column(
-        JSON
-    )  # is String(63206) in the current DB schema
+    conversation: Mapped[list[dict[str, str]]] = mapped_column(JSON)
+
     uuid: Mapped[uuid_pkg.UUID] = mapped_column(
         default_factory=uuid_pkg.uuid4, primary_key=True, unique=True
     )
-    recording_url: Mapped[str | None] = mapped_column(String, default=None)
-    stereo_recording_url: Mapped[str | None] = mapped_column(String, default=None)
-
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default_factory=lambda: datetime.now(UTC)
     )

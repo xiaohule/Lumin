@@ -1,5 +1,5 @@
-# ./src/app/api/v1/ends_of_call.py
-from typing import Annotated
+# ./src/app/api/v1/vapi_server_messages.py
+from typing import Annotated, Union
 
 from fastapi import APIRouter, Depends, Request
 from fastcrud.paginated import PaginatedListResponse, compute_offset, paginated_response
@@ -9,66 +9,26 @@ from ..dependencies import get_current_superuser, get_current_user
 from ...core.db.database import async_get_db
 from ...core.exceptions.http_exceptions import ForbiddenException, NotFoundException
 from ...core.utils.cache import cache
-from ...crud.crud_ends_of_call import crud_ends_of_call
+from ...crud.crud_vapi_end_of_calls import crud_vapi_end_of_calls
 from ...crud.crud_users import crud_users
-from ...schemas.end_of_call import (
-    EndOfCallMessage,
-    EndOfCallCreateInternal,
-    EndOfCallRead,
+from ...schemas.vapi_end_of_call import (
+    VapiEndOfCallRead,
 )
 from ...schemas.user import UserRead
 
-router = APIRouter(tags=["ends_of_call"])
-
-
-@router.post("/{username}/end_of_call", response_model=EndOfCallRead, status_code=201)
-async def write_end_of_call(
-    request: Request,
-    username: str,
-    message: EndOfCallMessage,
-    # current_user: Annotated[UserRead, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(async_get_db)],
-) -> EndOfCallRead:
-
-    # print("In ends_of_call.py > received message1 is", message.dict())
-    print("In ends_of_call.py > received message is", message)
-
-    db_user = await crud_users.get(
-        db=db, schema_to_select=UserRead, username=username, is_deleted=False
-    )
-    if db_user is None:
-        raise NotFoundException("User not found")
-
-    # if current_user["id"] != db_user["id"]:
-    #     raise ForbiddenException()
-
-    end_of_call_internal_dict = message.message.model_dump()
-    # end_of_call_internal_dict.pop('type', None)  # Remove 'type' if it's not needed for the model
-    end_of_call_internal_dict["created_by_user_id"] = db_user["id"]
-
-    print(
-        "In ends_of_call.py > end_of_call_internal_dict is", end_of_call_internal_dict
-    )
-
-    end_of_call_internal = EndOfCallCreateInternal(**end_of_call_internal_dict)
-    created_end_of_call: EndOfCallRead = await crud_ends_of_call.create(
-        db=db, object=end_of_call_internal
-    )
-
-    print("In ends_of_call.py > created_end_of_call is", created_end_of_call)
-
-    return created_end_of_call
+router = APIRouter(tags=["vapi_end_of_calls"])
 
 
 @router.get(
-    "/{username}/ends_of_call", response_model=PaginatedListResponse[EndOfCallRead]
+    "/{username}/vapi_end_of_calls",
+    response_model=PaginatedListResponse[VapiEndOfCallRead],
 )
 @cache(
-    key_prefix="{username}_ends_of_call:page_{page}:items_per_page:{items_per_page}",
+    key_prefix="{username}_vapi_end_of_calls:page_{page}:items_per_page:{items_per_page}",
     resource_id_name="username",
     expiration=60,
 )
-async def read_ends_of_call(
+async def read_end_of_calls(
     request: Request,
     username: str,
     db: Annotated[AsyncSession, Depends(async_get_db)],
@@ -81,22 +41,22 @@ async def read_ends_of_call(
     if not db_user:
         raise NotFoundException("User not found")
 
-    ends_of_call_data = await crud_ends_of_call.get_multi(
+    end_of_calls_data = await crud_vapi_end_of_calls.get_multi(
         db=db,
         offset=compute_offset(page, items_per_page),
         limit=items_per_page,
-        schema_to_select=EndOfCallRead,
+        schema_to_select=VapiEndOfCallRead,
         created_by_user_id=db_user["id"],
         is_deleted=False,
     )
 
     return paginated_response(
-        crud_data=ends_of_call_data, page=page, items_per_page=items_per_page
+        crud_data=end_of_calls_data, page=page, items_per_page=items_per_page
     )
 
 
-@router.get("/{username}/end_of_call/{id}", response_model=EndOfCallRead)
-@cache(key_prefix="{username}_end_of_call_cache", resource_id_name="id")
+@router.get("/{username}/vapi_end_of_call/{id}", response_model=VapiEndOfCallRead)
+@cache(key_prefix="{username}_vapi_end_of_call_cache", resource_id_name="id")
 async def read_end_of_call(
     request: Request,
     username: str,
@@ -109,15 +69,15 @@ async def read_end_of_call(
     if db_user is None:
         raise NotFoundException("User not found")
 
-    db_end_of_call: EndOfCallRead | None = await crud_ends_of_call.get(
+    db_end_of_call: VapiEndOfCallRead | None = await crud_vapi_end_of_calls.get(
         db=db,
-        schema_to_select=EndOfCallRead,
+        schema_to_select=VapiEndOfCallRead,
         id=id,
         created_by_user_id=db_user["id"],
         is_deleted=False,
     )
     if db_end_of_call is None:
-        raise NotFoundException("EndOfCall not found")
+        raise NotFoundException("VapiEndOfCall not found")
 
     return db_end_of_call
 
@@ -155,11 +115,11 @@ async def read_end_of_call(
 #     return {"message": "Post updated"}
 
 
-@router.delete("/{username}/end_of_call/{id}")
+@router.delete("/{username}/vapi_end_of_call/{id}")
 @cache(
-    "{username}_end_of_call_cache",
+    "{username}_vapi_end_of_call_cache",
     resource_id_name="id",
-    to_invalidate_extra={"{username}_ends_of_call": "{username}"},
+    to_invalidate_extra={"{username}_vapi_end_of_calls": "{username}"},
 )
 async def erase_end_of_call(
     request: Request,
@@ -177,24 +137,25 @@ async def erase_end_of_call(
     if current_user["id"] != db_user["id"]:
         raise ForbiddenException()
 
-    db_end_of_call = await crud_ends_of_call.get(
-        db=db, schema_to_select=EndOfCallRead, id=id, is_deleted=False
+    db_end_of_call = await crud_vapi_end_of_calls.get(
+        db=db, schema_to_select=VapiEndOfCallRead, id=id, is_deleted=False
     )
     if db_end_of_call is None:
-        raise NotFoundException("EndOfCall not found")
+        raise NotFoundException("VapiEndOfCall not found")
 
-    await crud_ends_of_call.delete(db=db, id=id)
+    await crud_vapi_end_of_calls.delete(db=db, id=id)
 
-    return {"message": "EndOfCall deleted"}
+    return {"message": "VapiEndOfCall deleted"}
 
 
 @router.delete(
-    "/{username}/db_end_of_call/{id}", dependencies=[Depends(get_current_superuser)]
+    "/{username}/db_vapi_end_of_call/{id}",
+    dependencies=[Depends(get_current_superuser)],
 )
 @cache(
-    "{username}_end_of_call_cache",
+    "{username}_vapi_end_of_call_cache",
     resource_id_name="id",
-    to_invalidate_extra={"{username}_ends_of_call": "{username}"},
+    to_invalidate_extra={"{username}_vapi_end_of_calls": "{username}"},
 )
 async def erase_db_end_of_call(
     request: Request,
@@ -208,11 +169,11 @@ async def erase_db_end_of_call(
     if db_user is None:
         raise NotFoundException("User not found")
 
-    db_end_of_call = await crud_ends_of_call.get(
-        db=db, schema_to_select=EndOfCallRead, id=id
+    db_end_of_call = await crud_vapi_end_of_calls.get(
+        db=db, schema_to_select=VapiEndOfCallRead, id=id
     )
     if db_end_of_call is None:
-        raise NotFoundException("EndOfCall not found")
+        raise NotFoundException("VapiEndOfCall not found")
 
-    await crud_ends_of_call.db_delete(db=db, id=id)
-    return {"message": "EndOfCall deleted from the database"}
+    await crud_vapi_end_of_calls.db_delete(db=db, id=id)
+    return {"message": "VapiEndOfCall deleted from the database"}

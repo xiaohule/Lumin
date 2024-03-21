@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from src.app.core.config import settings
 from src.app.main import app
 
-from .helper import _get_token, _get_end_of_call_ids
+from .helper import _get_token, _get_vapi_end_of_call_ids
 
 test_name = settings.TEST_NAME
 test_username = settings.TEST_USERNAME
@@ -44,10 +44,10 @@ def test_get_multiple_users(client: TestClient) -> None:
     assert response.status_code == 200
 
 
-def test_post_end_of_call(client: TestClient) -> None:
+def test_post_vapi_end_of_call(client: TestClient) -> None:
     token = _get_token(username=test_username, password=test_password, client=client)
     response = client.post(
-        f"/api/v1/{test_username}/end_of_call",
+        f"/api/v1/{test_username}/vapi_server_message",
         json={
             "message": {
                 "type": "end-of-call-report",
@@ -101,20 +101,20 @@ def test_post_end_of_call(client: TestClient) -> None:
     assert response.status_code == 201
 
 
-def test_post_end_of_call_2(client: TestClient) -> None:
+def test_post_vapi_end_of_call_2(client: TestClient) -> None:
     token = _get_token(username=test_username, password=test_password, client=client)
     response = client.post(
-        f"/api/v1/{test_username}/end_of_call",
+        f"/api/v1/{test_username}/vapi_server_message",
         json={
             "message": {
                 "type": "end-of-call-report",
                 "endedReason": "customer-ended-call",
-                "transcript": "AI: Bienvenue aux assurances de la Caisse d'Epargne et des Banques Associées. Je me présente, suis Léo,\nUser: Bonjour les vôtres, j'ai acheté une Citroën c deux il n'y a pas longtemps. Et un particulier,\nAI: Bonjour,\nUser: Et là j'ai un petit problème c'est que en fait la la la la Citroën est en panne et personne ne me répond pas donc je voulais savoir comment procéder.\nAI: Je suis désolé d'apprendre que votre Citroën est en panne. Ne vous inquiétez pas, Voici les étapes à suivre pour gérer cette situation. Tout d'abord, assurez-vous d'être en sécurité et mettez votre véhicule hors de la circulation si possible. Deux, ensuite, vérifiez si vous avez une assistance dépannage incluse dans votre contrat d'assurance.",
-                "summary": "In the conversation, the User explains to the AI, which represents a customer service chat of a bank's insurance division, that they recently bought a Citroën C2 that is now broken down. The User seems to be seeking assistance with their vehicle. The AI advises the User to ensure their safety, and to check if they have assistance included in their insurance policy. When the User expresses interest in using the legal protection service, the AI outlines the steps to resolve the issue with the seller, including contacting the seller, sending a formal demand letter, seeking help from a mediator, and potentially taking the matter to court. The User thanks the AI for the advice and ends the call.",
+                "transcript": "AI: Bienvenue aux assurances de la Caisse d'Epargne et des Banques Associées...",
+                "summary": "In the conversation, the User explains to the AI...",
                 "messages": [
                     {
                         "role": "system",
-                        "message": "Bonjour, Léo ! Vous êtes la voix amicale et serviable des assurances de la caisse d'épargne et des banques associées, ici pour aider des clients dans le cadre de la gestion de leur sinistre. Vous êtes leur gestionnaire de sinistre. Votre tâche principale est de fournir un soutien par le biais d'interactions audio, répondant aux questions, résolvant les problèmes, offrant des conseils et faisant des recommandations de produits. Rappelez-vous, les clients ne peuvent pas vous voir, donc vos mots doivent peindre l'image de manière claire et chaleureuse.\nLors des interactions, écoutez attentivement les indices sur l'humeur du client et le contexte de leurs questions. Si un client demande si vous l'écoutez, rassurez-le avec une reconnaissance rapide et amicale. Pour les requêtes complexes nécessitant des explications détaillées, décomposez vos réponses en étapes simples et faciles à suivre. Votre objectif est de faire en sorte que chaque client se sente écouté, soutenu et satisfait du service.\n\n",
+                        "message": "Bonjour, Léo !...",
                         "time": 1710844175066,
                         "secondsFromStart": 0,
                     },
@@ -145,56 +145,6 @@ def test_post_end_of_call_2(client: TestClient) -> None:
                         "time": 1710844193456,
                         "endTime": 1710844201735.999,
                         "secondsFromStart": 18.34,
-                    },
-                    {
-                        "role": "bot",
-                        "message": "Je suis désolé d'apprendre que votre Citroën est en panne. Ne vous inquiétez pas, Voici les étapes à suivre pour gérer cette situation. Tout d'abord, assurez-vous d'être en sécurité et mettez votre véhicule hors de la circulation si possible. Deux, ensuite, vérifiez si vous avez une assistance dépannage incluse dans votre contrat d'assurance.",
-                        "time": 1710844204666.001,
-                        "endTime": 1710844223586,
-                        "secondsFromStart": 29.550001,
-                    },
-                    {
-                        "role": "user",
-                        "message": "Attendez excusez-moi elle n'est pas je ne suis pas arrêté sur la voie enfin mon mon véhicule il est garé en moi, mais il ne fonctionne plus. Alors que j'attendais quand même vu que je viens de l'acheter qui fonctionne un peu plus qu'une semaine quoi.",
-                        "time": 1710844224716,
-                        "endTime": 1710844239096,
-                        "secondsFromStart": 49.6,
-                    },
-                    {
-                        "role": "bot",
-                        "message": "Je comprends votre frustration, vraiment décevant d'avoir des problèmes avec une voiture récemment achetée. Pour votre situation, serait préférable de contacter le vendeur ou le concessionnaire où vous avez acheté la voiture. Car il pourrait être en mesure de vous aider ou de vous fournir une solution, surtout si la voiture est toujours sous garantie. Cependant, vous avez souscrit une assurance auto avec nous qui comprend une assistance dépannage, Nous pouvons également vous aider. Pouvez-vous me confirmer si c'est le cas,",
-                        "time": 1710844241636,
-                        "endTime": 1710844265886,
-                        "secondsFromStart": 66.52,
-                    },
-                    {
-                        "role": "user",
-                        "message": "Non moi je voulais vraiment avoir votre service de protection juridique. Donc vous m'expliquiez un petit peu je dois faire maintenant, est-ce que je dois envoyer un recommandé, est-ce que je dois rencontrer le conciliateur de justice, que je dois faire des poursuites judiciaires",
-                        "time": 1710844268625.995,
-                        "endTime": 1710844282756,
-                        "secondsFromStart": 93.509995,
-                    },
-                    {
-                        "role": "bot",
-                        "message": "Je comprends que vous bénéficiez de notre service de protection juridique. Voici les étapes à suivre pour résoudre ce problème avec le vendeur. Un. Contactez d'abord le vendeur pour lui expliquer la situation et demander une solution à l'amiable. Gardez une trace de toutes les communications avec le vendeur. Deux, si le vendeur ne répond pas ou refuse de résoudre le problème, pouvez envoyer une lettre de mise en demeure par courrier recommandé avec accusé de réception. Cette lettre doit décrire le problème, les solutions demandées et un délai raisonnable pour résoudre le problème. Trois, si le vendeur ne répond toujours pas ou ne résout pas le problème dans le délai imparti. Vous pouvez faire appel à un conciliateur de justice. Le conciliateur tentera de trouver une solution à l'amiable entre vous et le vendeur. Quatre Si aucune solution n'est trouvée après la conciliation, pouvez envisager de saisir le tribunal compétent pour engager une procédure judiciaire.",
-                        "time": 1710844286806,
-                        "endTime": 1710844332926,
-                        "secondsFromStart": 111.69,
-                    },
-                    {
-                        "role": "user",
-                        "message": "Ouais. Ok bon merci beaucoup pour ces informations et au revoir.",
-                        "time": 1710844336366,
-                        "endTime": 1710844340076,
-                        "secondsFromStart": 161.25,
-                    },
-                    {
-                        "role": "function_call",
-                        "name": "endCall",
-                        "args": "{}",
-                        "time": 1710844340807,
-                        "secondsFromStart": 163.765,
-                        "message": "",
                     },
                 ],
                 "recordingUrl": "https://auth.vapi.ai/storage/v1/object/public/recordings/1710844344292-51fb580d-7cb5-404c-abb3-9bf41bb69fee.wav",
@@ -263,15 +213,15 @@ def test_post_end_of_call_2(client: TestClient) -> None:
     assert response.status_code == 201
 
 
-def test_get_multiple_ends_of_call(client: TestClient) -> None:
+def test_get_multiple_end_of_calls(client: TestClient) -> None:
     token = _get_token(username=test_username, password=test_password, client=client)
     response = client.get(
-        f"/api/v1/{test_username}/ends_of_call",
+        f"/api/v1/{test_username}/vapi_end_of_calls",
         headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
     )
-    # print the response prefixed by test_get_multiple_ends_of_call
+    # print the response prefixed by test_get_multiple_end_of_calls
     print(
-        "In test_end_of_call.py, test_get_multiple_ends_of_call, response is",
+        "In test_end_of_call.py, test_get_multiple_end_of_calls, response is",
         response.json(),
     )
     assert response.status_code == 200
@@ -279,7 +229,7 @@ def test_get_multiple_ends_of_call(client: TestClient) -> None:
 
 def test_delete_end_of_call(client: TestClient) -> None:
     token = _get_token(username=test_username, password=test_password, client=client)
-    end_of_call_ids = _get_end_of_call_ids(
+    end_of_call_ids = _get_vapi_end_of_call_ids(
         username=test_username, client=client, token=token
     )
 
@@ -290,7 +240,7 @@ def test_delete_end_of_call(client: TestClient) -> None:
     # for each id in end_of_call_ids, delete the end of call
     for end_of_call_id in end_of_call_ids:
         response = client.delete(
-            f"/api/v1/{test_username}/end_of_call/{end_of_call_id}",
+            f"/api/v1/{test_username}/vapi_end_of_call/{end_of_call_id}",
             headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
         )
         # print the response prefixed by test_delete_end_of_call
@@ -308,7 +258,7 @@ def test_delete_db_end_of_call(client: TestClient) -> None:
     userToken = _get_token(
         username=test_username, password=test_password, client=client
     )
-    end_of_call_ids = _get_end_of_call_ids(
+    end_of_call_ids = _get_vapi_end_of_call_ids(
         username=test_username, client=client, token=userToken
     )
 
@@ -319,7 +269,7 @@ def test_delete_db_end_of_call(client: TestClient) -> None:
     # for each id in end_of_call_ids, delete the end of call
     for end_of_call_id in end_of_call_ids:
         response = client.delete(
-            f"/api/v1/{admin_username}/db_end_of_call/{end_of_call_id}",
+            f"/api/v1/{admin_username}/db_vapi_end_of_call/{end_of_call_id}",
             headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
         )
         # print the response prefixed by test_delete_db_end_of_call

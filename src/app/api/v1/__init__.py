@@ -3,7 +3,9 @@ from fastapi import APIRouter
 from .login import router as login_router
 from .logout import router as logout_router
 from .posts import router as posts_router
-from .ends_of_call import router as ends_of_call_router
+from .vapi_server_messages import router as vapi_server_messages_router
+from .vapi_end_of_calls import router as vapi_end_of_calls_router
+from .vapi_conversation_updates import router as vapi_conversation_updates_router
 from .rate_limits import router as rate_limits_router
 from .tasks import router as tasks_router
 from .tiers import router as tiers_router
@@ -14,7 +16,9 @@ router.include_router(login_router)
 router.include_router(logout_router)
 router.include_router(users_router)
 router.include_router(posts_router)
-router.include_router(ends_of_call_router)
+router.include_router(vapi_server_messages_router)
+router.include_router(vapi_end_of_calls_router)
+router.include_router(vapi_conversation_updates_router)
 router.include_router(tasks_router)
 router.include_router(tiers_router)
 router.include_router(rate_limits_router)
