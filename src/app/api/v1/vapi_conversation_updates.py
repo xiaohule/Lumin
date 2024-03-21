@@ -63,7 +63,7 @@ async def read_conversation_updates(
 async def read_conversation_update(
     request: Request,
     username: str,
-    id: int,
+    id: str,
     db: Annotated[AsyncSession, Depends(async_get_db)],
 ) -> dict:
     db_user = await crud_users.get(
@@ -96,7 +96,7 @@ async def read_conversation_update(
 # async def patch_post(
 #     request: Request,
 #     username: str,
-#     id: int,
+#     id: str,
 #     values: PostUpdate,
 #     current_user: Annotated[UserRead, Depends(get_current_user)],
 #     db: Annotated[AsyncSession, Depends(async_get_db)],
@@ -129,7 +129,7 @@ async def read_conversation_update(
 async def erase_conversation_update(
     request: Request,
     username: str,
-    id: int,
+    id: str,
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)],
 ) -> dict[str, str]:
@@ -165,7 +165,7 @@ async def erase_conversation_update(
 async def erase_db_conversation_update(
     request: Request,
     username: str,
-    id: int,
+    id: str,
     db: Annotated[AsyncSession, Depends(async_get_db)],
 ) -> dict[str, str]:
     db_user = await crud_users.get(

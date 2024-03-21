@@ -29,7 +29,7 @@ class VapiConversationUpdateCreateInternal(BaseModel):
         list[dict[str, str]],
         Field(examples=[{"role": "assistant", "message": "How can I help?"}]),
     ]
-    call_id: Annotated[
+    id: Annotated[
         str,
         Field(
             min_length=1,
@@ -40,8 +40,11 @@ class VapiConversationUpdateCreateInternal(BaseModel):
     created_by_user_id: int
 
 
-class VapiConversationUpdateUpdate(VapiConversationUpdateCreateInternal):
-    pass
+class VapiConversationUpdateUpdate(BaseModel):
+    conversation: Annotated[
+        list[dict[str, str]],
+        Field(examples=[{"role": "assistant", "message": "How can I help?"}]),
+    ]
 
 
 class VapiConversationUpdate(
@@ -54,7 +57,6 @@ class VapiConversationUpdate(
 
 
 class VapiConversationUpdateRead(VapiConversationUpdateCreateInternal):
-    id: int
     created_at: datetime
 
 

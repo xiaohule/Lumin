@@ -17,8 +17,9 @@ from ...schemas.vapi_end_of_call import (
 from ...schemas.vapi_conversation_update import (
     VapiConversationUpdateCreateInternal,
     VapiConversationUpdateRead,
+    VapiConversationUpdateUpdate,
 )
-from ...schemas.vapi_server_message import VapiServerMessage, VapiServerMessageRead
+from ...schemas.vapi_server_message import VapiServerMessage, VapiServerMessageResponse
 from ...schemas.user import UserRead
 
 router = APIRouter(tags=["vapi_server_messages"])
@@ -26,7 +27,7 @@ router = APIRouter(tags=["vapi_server_messages"])
 
 @router.post(
     "/{username}/vapi_server_message",
-    response_model=VapiServerMessageRead,
+    response_model=VapiServerMessageResponse,
     status_code=201,
 )
 async def write_vapi_server_message(
@@ -35,7 +36,7 @@ async def write_vapi_server_message(
     message: VapiServerMessage,
     # current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)],
-) -> VapiServerMessageRead:
+) -> VapiServerMessageResponse:
 
     print("In vapi_server_message.py > received message is", message)
 
@@ -50,7 +51,6 @@ async def write_vapi_server_message(
 
     message_internal_dict = message.message.model_dump()
     message_internal_dict["created_by_user_id"] = db_user["id"]
-    message_internal_dict["call_id"] = message_internal_dict["call"]["id"]
 
     print(
         "In vapi_server_message.py > vapi_server_message_internal_dict is",
@@ -58,6 +58,7 @@ async def write_vapi_server_message(
     )
 
     if message_internal_dict["type"] == "end-of-call-report":
+        message_internal_dict["call_id"] = message_internal_dict["call"]["id"]
         end_of_call_internal = VapiEndOfCallCreateInternal(**message_internal_dict)
         created_end_of_call: VapiEndOfCallRead = await crud_vapi_end_of_calls.create(
             db=db, object=end_of_call_internal
@@ -66,22 +67,41 @@ async def write_vapi_server_message(
         return created_end_of_call
 
     elif message_internal_dict["type"] == "conversation-update":
-        # relevant_data = {
-        #     "type": message_internal_dict["type"],
-        #     "conversation": message_internal_dict["conversation"],
-        #     "created_by_user_id": message_internal_dict["created_by_user_id"],
-        # }
+        message_internal_dict["id"] = message_internal_dict["call"]["id"]
 
-        conversation_update_internal = VapiConversationUpdateCreateInternal(
-            **message_internal_dict
+        db_conversation_update = await crud_vapi_conversation_updates.get(
+            db=db,
+            schema_to_select=VapiConversationUpdateRead,
+            id=message_internal_dict["id"],
         )
-        created_conversation_update: VapiConversationUpdateRead = (
-            await crud_vapi_conversation_updates.create(
-                db=db, object=conversation_update_internal
+
+        if db_conversation_update is None:
+            conversation_update_internal = VapiConversationUpdateCreateInternal(
+                **message_internal_dict
             )
-        )
-        print(
-            "In vapi_server_message.py > created_conversation_update is",
-            created_conversation_update,
-        )
-        return created_conversation_update
+            created_conversation_update: VapiConversationUpdateRead = (
+                await crud_vapi_conversation_updates.create(
+                    db=db, object=conversation_update_internal
+                )
+            )
+            print(
+                "In vapi_server_message.py > created_conversation_update is",
+                created_conversation_update,
+            )
+            return created_conversation_update
+
+        else:
+            conversation_update_update = VapiConversationUpdateUpdate(
+                **message_internal_dict
+            )
+            await crud_vapi_conversation_updates.update(
+                db=db,
+                object=conversation_update_update,
+                id=message_internal_dict["id"],
+            )
+            print("In vapi_server_message.py > ConversationUpdate overwritten")
+            return {"message": "ConversationUpdate overwritten"}
+
+
+# Here I'm updating the user with username == "myusername".
+# #I'll change his name to "Updated Name"

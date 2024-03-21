@@ -7,6 +7,7 @@ from .vapi_end_of_call import VapiEndOfCallBase, VapiEndOfCallRead
 from .vapi_conversation_update import (
     VapiConversationUpdateBase,
     VapiConversationUpdateRead,
+    VapiConversationUpdateUpdate,
 )
 
 
@@ -16,4 +17,6 @@ class VapiServerMessage(BaseModel):
     )
 
 
-VapiServerMessageRead = Union[VapiEndOfCallRead, VapiConversationUpdateRead]
+VapiServerMessageResponse = Union[
+    dict[str, str], VapiConversationUpdateRead, VapiEndOfCallRead
+]

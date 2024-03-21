@@ -49,6 +49,143 @@ def test_get_multiple_users(client: TestClient) -> None:
     assert response.status_code == 200
 
 
+def test_post_vapi_conversation_update(client: TestClient) -> None:
+    token = _get_token(username=test_username, password=test_password, client=client)
+    response = client.post(
+        f"/api/v1/{test_username}/vapi_server_message",
+        json={
+            "message": {
+                "type": "conversation-update",
+                "conversation": [
+                    {
+                        "role": "assistant",
+                        "content": "Bienvenue aux assurances de la Caisse d'Epargne des Banques Associées. Je me présente, suis Léo, puis-je vous aider",
+                    },
+                    {"role": "user", "content": "Bonjour Léo, je suis copain Vertou,"},
+                    {
+                        "role": "assistant",
+                        "content": "Bonjour, suis ravi de vous assister. Pourriez-vous me donner votre nom complet S'il vous plaît,",
+                    },
+                    {
+                        "role": "user",
+                        "content": "Oui, oui mon prénom c'est coquin et mon nom de famille c'est Vertu v e r t o u.",
+                    },
+                ],
+                "call": {
+                    "id": "51ac5220-9ae4-46fe-8e90-5fc123706970",
+                    "assistantId": None,
+                    "customerId": None,
+                    "phoneNumberId": None,
+                    "type": "webCall",
+                    "updatedAt": "2024-03-20T17:26:19.582Z",
+                    "orgId": "e126b212-5073-46eb-bed1-295d0aef12da",
+                    "cost": 0,
+                    "twilioCallSid": None,
+                    "twilioCallStatus": None,
+                    "webCallUrl": "https://vapi.daily.co/giUL1FGoyFlBRa5FpHlw",
+                    "assistant": {
+                        "name": "Leo",
+                        "model": {
+                            "model": "gpt-4",
+                            "messages": [
+                                {
+                                    "role": "system",
+                                    "content": "Salut Léo ! En tant que juriste de notre service d'information juridique à la Caisse d'Épargne et des Banques Associées...",
+                                }
+                            ],
+                            "provider": "openai",
+                            "functions": [],
+                            "maxTokens": 250,
+                            "temperature": 0,
+                        },
+                    },
+                    "phoneNumber": None,
+                    "phoneCallProviderDetails": None,
+                },
+                "unknownDict": {"dummy": "1234567890"},
+                "unknownList": ["dummy", "1234567890"],
+                "unknownString": "dummy",
+            }
+        },
+        headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
+    )
+    # print the response prefixed by test_post_end_of_call
+    print(
+        "In test_vapi_server_message.py, test_post_vapi_conversation_update, response is",
+        response.json(),
+    )
+    assert response.status_code == 201
+
+
+def test_post_vapi_conversation_update_2(client: TestClient) -> None:
+    token = _get_token(username=test_username, password=test_password, client=client)
+    response = client.post(
+        f"/api/v1/{test_username}/vapi_server_message",
+        json={
+            "message": {
+                "type": "conversation-update",
+                "conversation": [
+                    {
+                        "role": "assistant",
+                        "content": "Bienvenue aux assurances de la Caisse d'Epargne des Banques Associées. Je me présente, suis Léo, puis-je vous aider",
+                    },
+                    {"role": "user", "content": "Bonjour Léo, je suis copain Vertou,"},
+                    {
+                        "role": "assistant",
+                        "content": "Bonjour, suis ravi de vous assister. Pourriez-vous me donner votre nom complet S'il vous plaît,",
+                    },
+                    {
+                        "role": "user",
+                        "content": "Oui, oui mon prénom c'est coquin et mon nom de famille c'est Vertu v e r t o u.",
+                    },
+                    {
+                        "role": "assistant",
+                        "content": "Merci beaucoup Coquin Vertou. Comment puis-je vous aider aujourd'hui,",
+                    },
+                ],
+                "call": {
+                    "id": "51ac5220-9ae4-46fe-8e90-5fc123706970",
+                    "assistantId": None,
+                    "customerId": None,
+                    "phoneNumberId": None,
+                    "type": "webCall",
+                    "updatedAt": "2024-03-20T17:26:19.582Z",
+                    "orgId": "e126b212-5073-46eb-bed1-295d0aef12da",
+                    "cost": 0,
+                    "twilioCallSid": None,
+                    "twilioCallStatus": None,
+                    "webCallUrl": "https://vapi.daily.co/giUL1FGoyFlBRa5FpHlw",
+                    "assistant": {
+                        "name": "Leo",
+                        "model": {
+                            "model": "gpt-4",
+                            "messages": [
+                                {
+                                    "role": "system",
+                                    "content": "Salut Léo ! En tant que juriste de notre service d'information juridique à la Caisse d'Épargne et des Banques Associées...",
+                                }
+                            ],
+                            "provider": "openai",
+                            "functions": [],
+                            "maxTokens": 250,
+                            "temperature": 0,
+                        },
+                    },
+                    "phoneNumber": None,
+                    "phoneCallProviderDetails": None,
+                },
+            }
+        },
+        headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
+    )
+    # print the response prefixed by test_post_end_of_call
+    print(
+        "In test_vapi_server_message.py, test_post_vapi_conversation_update_2, response is",
+        response.json(),
+    )
+    assert response.status_code == 201
+
+
 def test_post_vapi_end_of_call(client: TestClient) -> None:
     token = _get_token(username=test_username, password=test_password, client=client)
     response = client.post(
@@ -217,143 +354,6 @@ def test_post_vapi_end_of_call_2(client: TestClient) -> None:
     # print the response prefixed by test_post_end_of_call_2
     print(
         "In test_vapi_server_message.py, test_post_end_of_call_2, response is",
-        response.json(),
-    )
-    assert response.status_code == 201
-
-
-def test_post_vapi_conversation_update(client: TestClient) -> None:
-    token = _get_token(username=test_username, password=test_password, client=client)
-    response = client.post(
-        f"/api/v1/{test_username}/vapi_server_message",
-        json={
-            "message": {
-                "type": "conversation-update",
-                "conversation": [
-                    {
-                        "role": "assistant",
-                        "content": "Bienvenue aux assurances de la Caisse d'Epargne des Banques Associées. Je me présente, suis Léo, puis-je vous aider",
-                    },
-                    {"role": "user", "content": "Bonjour Léo, je suis copain Vertou,"},
-                    {
-                        "role": "assistant",
-                        "content": "Bonjour, suis ravi de vous assister. Pourriez-vous me donner votre nom complet S'il vous plaît,",
-                    },
-                    {
-                        "role": "user",
-                        "content": "Oui, oui mon prénom c'est coquin et mon nom de famille c'est Vertu v e r t o u.",
-                    },
-                ],
-                "call": {
-                    "id": "51ac5220-9ae4-46fe-8e90-5fc123706970",
-                    "assistantId": None,
-                    "customerId": None,
-                    "phoneNumberId": None,
-                    "type": "webCall",
-                    "updatedAt": "2024-03-20T17:26:19.582Z",
-                    "orgId": "e126b212-5073-46eb-bed1-295d0aef12da",
-                    "cost": 0,
-                    "twilioCallSid": None,
-                    "twilioCallStatus": None,
-                    "webCallUrl": "https://vapi.daily.co/giUL1FGoyFlBRa5FpHlw",
-                    "assistant": {
-                        "name": "Leo",
-                        "model": {
-                            "model": "gpt-4",
-                            "messages": [
-                                {
-                                    "role": "system",
-                                    "content": "Salut Léo ! En tant que juriste de notre service d'information juridique à la Caisse d'Épargne et des Banques Associées...",
-                                }
-                            ],
-                            "provider": "openai",
-                            "functions": [],
-                            "maxTokens": 250,
-                            "temperature": 0,
-                        },
-                    },
-                    "phoneNumber": None,
-                    "phoneCallProviderDetails": None,
-                },
-                "unknownDict": {"dummy": "1234567890"},
-                "unknownList": ["dummy", "1234567890"],
-                "unknownString": "dummy",
-            }
-        },
-        headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
-    )
-    # print the response prefixed by test_post_end_of_call
-    print(
-        "In test_vapi_server_message.py, test_post_vapi_conversation_update, response is",
-        response.json(),
-    )
-    assert response.status_code == 201
-
-
-def test_post_vapi_conversation_update_2(client: TestClient) -> None:
-    token = _get_token(username=test_username, password=test_password, client=client)
-    response = client.post(
-        f"/api/v1/{test_username}/vapi_server_message",
-        json={
-            "message": {
-                "type": "conversation-update",
-                "conversation": [
-                    {
-                        "role": "assistant",
-                        "content": "Bienvenue aux assurances de la Caisse d'Epargne des Banques Associées. Je me présente, suis Léo, puis-je vous aider",
-                    },
-                    {"role": "user", "content": "Bonjour Léo, je suis copain Vertou,"},
-                    {
-                        "role": "assistant",
-                        "content": "Bonjour, suis ravi de vous assister. Pourriez-vous me donner votre nom complet S'il vous plaît,",
-                    },
-                    {
-                        "role": "user",
-                        "content": "Oui, oui mon prénom c'est coquin et mon nom de famille c'est Vertu v e r t o u.",
-                    },
-                    {
-                        "role": "assistant",
-                        "content": "Merci beaucoup Coquin Vertou. Comment puis-je vous aider aujourd'hui,",
-                    },
-                ],
-                "call": {
-                    "id": "51ac5220-9ae4-46fe-8e90-5fc123706970",
-                    "assistantId": None,
-                    "customerId": None,
-                    "phoneNumberId": None,
-                    "type": "webCall",
-                    "updatedAt": "2024-03-20T17:26:19.582Z",
-                    "orgId": "e126b212-5073-46eb-bed1-295d0aef12da",
-                    "cost": 0,
-                    "twilioCallSid": None,
-                    "twilioCallStatus": None,
-                    "webCallUrl": "https://vapi.daily.co/giUL1FGoyFlBRa5FpHlw",
-                    "assistant": {
-                        "name": "Leo",
-                        "model": {
-                            "model": "gpt-4",
-                            "messages": [
-                                {
-                                    "role": "system",
-                                    "content": "Salut Léo ! En tant que juriste de notre service d'information juridique à la Caisse d'Épargne et des Banques Associées...",
-                                }
-                            ],
-                            "provider": "openai",
-                            "functions": [],
-                            "maxTokens": 250,
-                            "temperature": 0,
-                        },
-                    },
-                    "phoneNumber": None,
-                    "phoneCallProviderDetails": None,
-                },
-            }
-        },
-        headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
-    )
-    # print the response prefixed by test_post_end_of_call
-    print(
-        "In test_vapi_server_message.py, test_post_vapi_conversation_update_2, response is",
         response.json(),
     )
     assert response.status_code == 201
