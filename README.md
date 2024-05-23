@@ -1,12 +1,21 @@
-<h1 align="center"> Fast FastAPI boilerplate</h1>
+ <h1 align="center" style="display: flex; align-items: center; justify-content: center;">
+  <img src="src/assets/icon.png" alt="" width="3%" height="auto" style="vertical-align: middle; margin-right: 10px;">
+  Lumin's API (based on "Fast FastAPI boilerplate")
+</h1>
 <p align="center" markdown=1>
-  <i>Yet another template to speed your FastAPI development up.</i>
+  <i>The AI voice that handles your policyholders' claims and disputes.</i>
 </p>
 
 <p align="center">
-  <a href="https://github.com/igormagalhaesr/FastAPI-boilerplate">
-    <img src="https://user-images.githubusercontent.com/43156212/277095260-ef5d4496-8290-4b18-99b2-0c0b5500504e.png" alt="Blue Rocket with FastAPI Logo as its window. There is a word FAST written" width="35%" height="auto">
-  </a>
+  <!-- <a href="https://github.com/igormagalhaesr/FastAPI-boilerplate"> -->
+    <img src="src/assets/screen1.png" alt="" width="100%" height="auto">
+  <!-- </a> -->
+</p>
+
+<p align="center">
+  <!-- <a href="https://github.com/igormagalhaesr/FastAPI-boilerplate"> -->
+    <img src="src/assets/screen2.png" alt="" width="100%" height="auto">
+  <!-- </a> -->
 </p>
 
 <p align="center">
@@ -110,7 +119,7 @@
 1. [License](#10-license)
 1. [Contact](#11-contact)
 
-______________________________________________________________________
+---
 
 ## 3. Prerequisites
 
@@ -666,7 +675,7 @@ Note that this table is used to blacklist the `JWT` tokens (it's how you log a u
 Inside `app/models`, create a new `entity.py` for each new entity (replacing entity with the name) and define the attributes according to [SQLAlchemy 2.0 standards](https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#orm-mapping-styles):
 
 > \[!WARNING\]
-> Note that since it inherits from `Base`, the new model is mapped as a python `dataclass`, so optional attributes (arguments with a default value) should be defined after required  attributes.
+> Note that since it inherits from `Base`, the new model is mapped as a python `dataclass`, so optional attributes (arguments with a default value) should be defined after required attributes.
 
 ```python
 from sqlalchemy import String, DateTime
@@ -1714,7 +1723,7 @@ Finally create your tests (you may want to copy the structure in test_user.py)
 
 Now, to run:
 
-### 7.1  Docker Compose
+### 7.1 Docker Compose
 
 First you need to uncomment the following part in the `docker-compose.yml` file:
 
@@ -1766,7 +1775,7 @@ It will automatically run the tests, but if you want to run again later:
 docker-compose run --rm pytest
 ```
 
-### 7.2  From Scratch
+### 7.2 From Scratch
 
 While in the `root` folder, run:
 
