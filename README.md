@@ -7,15 +7,15 @@
 </p>
 
 <p align="center">
-  <!-- <a href="https://github.com/igormagalhaesr/FastAPI-boilerplate"> -->
+  <a href="https://lumin-staging-env.webflow.io/">
     <img src="src/assets/screen1.png" alt="" width="100%" height="auto">
-  <!-- </a> -->
+  </a>
 </p>
 
 <p align="center">
-  <!-- <a href="https://github.com/igormagalhaesr/FastAPI-boilerplate"> -->
+  <a href="https://lumin-staging-env.webflow.io/">
     <img src="src/assets/screen2.png" alt="" width="100%" height="auto">
-  <!-- </a> -->
+  </a>
 </p>
 
 <p align="center">
